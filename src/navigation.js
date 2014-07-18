@@ -59,7 +59,6 @@ App._Navigation = function (window, document, App, Dialog, Scroll, Pages, Stack,
            }
 
        } else {
-       	   var beginStack
            // we didn't match soo we are in the root and thus should demolish 
            // the stack...
            if ( wholeStack.length > 1 ) {
