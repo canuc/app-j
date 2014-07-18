@@ -20,5 +20,4 @@ The goal of App.js is to provide a robust starting point for mobile webapps, han
 	+ Cooler name
 	+ A whole extra character in aforementioned name
 	+ Added support for browser back handling, appjs is great within Kik,
-	  but as soon as someone hits the back button on android or bb10 which
-	  is handled in app-j.js! :p
+	  but as soon as someone hits the back button withing the browser, on android or bb10 they will leave the page. But now there is app-j.js! :p
