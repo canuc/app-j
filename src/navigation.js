@@ -46,11 +46,11 @@ App._Navigation = function (window, document, App, Dialog, Scroll, Pages, Stack,
                     // NO-OP, we just changed to the page that we are on...
                }
                else if ( pageToPopTo === ( wholeStack.length -2 ) ) {
-                    App.back(null,null,{hashChange:true});
+                    App.back(undefined,undefined,{hashChange:true});
                }
                else {
                    App.removeFromStack(pageToPopTo,wholeStack.length - 2);
-                   App.back(null,null,{hashChange:true});
+                   App.back(undefined,undefined,{hashChange:true});
                }
            }
 
@@ -61,7 +61,7 @@ App._Navigation = function (window, document, App, Dialog, Scroll, Pages, Stack,
                App.removeFromStack(1,wholeStack.length - 1);
            } 
                
-           App.back(null,null,{hashChange:true});
+           App.back(undefined,undefined,{hashChange:true});
        	}
     };	
 
