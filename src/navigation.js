@@ -1,4 +1,4 @@
-App._Navigation = function (window, document, App, Dialog, Scroll, Pages, Stack, Transitions) {
+App._Navigation = function (window, document, App, Dialog, Scroll, Pages, Stack, Transitions, Utils) {
 	var navQueue = [],
 		navLock  = false,
 		current, currentNode;
@@ -19,7 +19,7 @@ App._Navigation = function (window, document, App, Dialog, Scroll, Pages, Stack,
        var wholeStack = App.getStack();
        var allElements = {};
 
-       forEach(wholeStack,function(elem,idx) {
+       Utils.forEach(wholeStack,function(elem,idx) {
            var currentPageName   = elem[0];
            var params = elem[1];
            var pageKey = currentPageName;
@@ -27,7 +27,6 @@ App._Navigation = function (window, document, App, Dialog, Scroll, Pages, Stack,
            if (!isArrEmpty(params)) {
                var jsonEncodedParams = JSON.stringify(params);
                var encodedUriComponent = encodeURI(jsonEncodedParams);
-               console.log(encodedUriComponent);
                pageKey += "+";
                var newPageKey = pageKey + encodedUriComponent;
                allElements[newPageKey] = idx;
@@ -44,25 +43,25 @@ App._Navigation = function (window, document, App, Dialog, Scroll, Pages, Stack,
 
                var pageToPopTo = allElements[pageHash];
                if ( pageToPopTo === wholeStack.length - 1) {
-                    // NO-OP
+                    // NO-OP, we just changed to the page that we are on...
                }
                else if ( pageToPopTo === ( wholeStack.length -2 ) ) {
-                    App.back({hashChange:true});
+                    App.back(null,null,{hashChange:true});
                }
                else {
                    App.removeFromStack(pageToPopTo,wholeStack.length - 2);
-                   App.back({hashChange:true});
+                   App.back(null,null,{hashChange:true});
                }
            }
 
        } else {
-           // we didn't match soo we are in the root and thus should demolish 
+           // we didn't match soo we are in the root and should demolish 
            // the stack...
            if ( wholeStack.length > 1 ) {
                App.removeFromStack(1,wholeStack.length - 1);
            } 
                
-           App.back({hashChange:true});
+           App.back(null,null,{hashChange:true});
        	}
     };	
 
@@ -336,6 +335,8 @@ App._Navigation = function (window, document, App, Dialog, Scroll, Pages, Stack,
 			throw Error(backPageName+' is not currently in the stack, cannot go back to it');
 		}
 
+		var historyBack = 1;
+
 		if (backPageName) {
 			var index = -1;
 			for (var i=stack.length-1; i>=0; i--) {
@@ -354,21 +355,10 @@ App._Navigation = function (window, document, App, Dialog, Scroll, Pages, Stack,
 
 		var stackLength = stack.length,
 			cancelled   = false;
-			
-		function backCompleted() {
-			if ( !options.hashChange ) {
-		        // Make sure this occurs after the element has been popped from the stack
-		        // to ensure that we will not see the page in the stack
-		        // and thus ignore the hashchange event
-		        window.history.back();
-		    }
-		}
 
 		var navigatedImmediately = navigate(function (unlock) {
 			if (Stack.size() < 2) {
 				unlock();
-				
-				backCompleted();
 
 				return;
 			}
@@ -382,6 +372,13 @@ App._Navigation = function (window, document, App, Dialog, Scroll, Pages, Stack,
 			}
 			else {
 				Stack.pop();
+				// Make sure this occurs after the element has been popped from the stack
+			    // to ensure that we will not see the page in the stack
+			    // and thus ignore the hashchange event
+				if ( !options.hashChange ) {
+			       
+			        window.history.back();
+			    }
 			}
 
 			var data       = Stack.getCurrent(),
@@ -423,7 +420,7 @@ App._Navigation = function (window, document, App, Dialog, Scroll, Pages, Stack,
 
 						unlock();
 
-						backCompleted();
+						
 
 						callback();
 					}, 0);
@@ -480,4 +477,4 @@ App._Navigation = function (window, document, App, Dialog, Scroll, Pages, Stack,
 			document.body.removeChild(clickBlocker);
 		});
 	}
-}(window, document, App, App._Dialog, App._Scroll, App._Pages, App._Stack, App._Transitions);
+}(window, document, App, App._Dialog, App._Scroll, App._Pages, App._Stack, App._Transitions, App._Utils);
