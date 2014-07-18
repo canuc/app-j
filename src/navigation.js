@@ -36,16 +36,13 @@ App._Navigation = function (window, document, App, Dialog, Scroll, Pages, Stack,
            }
        });
 
-       console.log("hashChange event...",allElements,hashElements);
+       
        if ( hashElements ) {
-
            var pageHash = hashElements[1];
-           console.log("pagehash: ",pageHash,allElements[pageHash]);
 
            if ( pageHash in allElements) {
 
                var pageToPopTo = allElements[pageHash];
-               console.log("we have the element: ",pageToPopTo);
                if ( pageToPopTo === wholeStack.length - 1) {
                     // NO-OP
                }
@@ -116,7 +113,7 @@ App._Navigation = function (window, document, App, Dialog, Scroll, Pages, Stack,
 		return loadPage(pageName, args, options, callback);
 	};
 
-	App.back = function (pageName, callback) {
+	App.back = function (pageName, callback, options) {
 		switch (typeof pageName) {
 			case 'function':
 				callback = pageName;
@@ -127,6 +124,7 @@ App._Navigation = function (window, document, App, Dialog, Scroll, Pages, Stack,
 			default:
 				throw TypeError('pageName must be a string if defined, got ' + pageName);
 		}
+
 		switch (typeof callback) {
 			case 'undefined':
 				callback = function () {};
@@ -136,7 +134,9 @@ App._Navigation = function (window, document, App, Dialog, Scroll, Pages, Stack,
 				throw TypeError('callback must be a function if defined, got ' + callback);
 		}
 
-		return navigateBack(pageName, callback);
+		options = options || {};
+
+		return navigateBack(pageName, callback, options);
 	};
 
 	App.pick = function (pageName, args, options, loadCallback, callback) {
@@ -320,7 +320,9 @@ App._Navigation = function (window, document, App, Dialog, Scroll, Pages, Stack,
 		}
 	}
 
-	function navigateBack (backPageName, callback) {
+	function navigateBack (backPageName, callback, options ) {
+		options = options || {};
+
 		if (Dialog.status() && Dialog.close() && !backPageName) {
 			callback();
 			return;
@@ -352,15 +354,21 @@ App._Navigation = function (window, document, App, Dialog, Scroll, Pages, Stack,
 
 		var stackLength = stack.length,
 			cancelled   = false;
+			
+		function backCompleted() {
+			if ( !options.hashChange ) {
+		        // Make sure this occurs after the element has been popped from the stack
+		        // to ensure that we will not see the page in the stack
+		        // and thus ignore the hashchange event
+		        window.history.back();
+		    }
+		}
 
 		var navigatedImmediately = navigate(function (unlock) {
 			if (Stack.size() < 2) {
 				unlock();
 				
-				if ( !options.hashChange ) {
-                    // We are going to go back
-                    window.history.back();
-                }
+				backCompleted();
 
 				return;
 			}
@@ -415,10 +423,7 @@ App._Navigation = function (window, document, App, Dialog, Scroll, Pages, Stack,
 
 						unlock();
 
-						if ( !options.hashChange ) {
-		                    // We are going to go back
-		                    window.history.back();
-		                }
+						backCompleted();
 
 						callback();
 					}, 0);
