@@ -62,13 +62,20 @@ App._Dialog = function (window, document, Clickable, App, Utils) {
 				}
 			}, false);
 		}
-
+		
+		var dialogOuter = document.createElement('div');
 		var dialog = document.createElement('div');
-		dialog.className = 'app-dialog';
+		
+		dialogOuter.appendChild(dialog);
+		dialogOuter.className = 'app-dialog';
+		
+		dialog.className += 'app-dialog-content';
+		
 		if (options.theme) {
-			dialog.className += ' '+options.theme;
+			dialogOuter.className += ' '+options.theme;
 		}
-		dialogContainer.appendChild(dialog);
+		
+		dialogContainer.appendChild(dialogOuter);
 
 		if (options.title) {
 			var title = document.createElement('div');
